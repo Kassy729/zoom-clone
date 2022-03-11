@@ -32,7 +32,10 @@ server.listen(3000, handleListen);
 //   socket.send("Hello!!");
 // }
 
+const sockets = [];
+
 wss.on("connection", (socket) => {
+  sockets.push(socket);
   console.log("Connected to a Browser");
   socket.send("Hello!");
   socket.on("close", () => {
@@ -41,6 +44,10 @@ wss.on("connection", (socket) => {
   socket.on("message", (msg) => {
     //클라이언트에서 받은 메세지를 받는 부분
     console.log(Buffer.from(msg, "base64").toString("utf-8"));
-    socket.send(Buffer.from(msg, "base64").toString("utf-8"));
+    // socket.send(Buffer.from(msg, "base64").toString("utf-8"));
+    // 연결된 모든 클라이언트에게 msg를 send 한다.
+    sockets.forEach((aSocket) => {
+      aSocket.send(Buffer.from(msg, "base64").toString("utf-8"));
+    });
   });
 });
